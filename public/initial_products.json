@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1,
+    "name": "تفاح أحمر",
+    "description": "تفاح طازج عالي الجودة.",
+    "price": 20,
+    "category": "فواكه",
+    "image": "https://images.pexels.com/photos/102104/pexels-photo-102104.jpeg"
+  },
+  {
+    "id": 2,
+    "name": "خيار مصري",
+    "description": "خيار طازج ومقرمش.",
+    "price": 10,
+    "category": "خضار",
+    "image": "https://images.pexels.com/photos/461382/pexels-photo-461382.jpeg"
+  },
+  {
+    "id": 3,
+    "name": "دجاج بلدي",
+    "description": "دجاج طازج مذبوح يوميًا.",
+    "price": 80,
+    "category": "لحوم",
+    "image": "https://images.pexels.com/photos/65175/pexels-photo-65175.jpeg"
+  },
+  {
+    "id": 4,
+    "name": "عصير برتقال طبيعي",
+    "description": "عصير برتقال بدون مواد حافظة.",
+    "price": 15,
+    "category": "مشروبات",
+    "image": "https://images.pexels.com/photos/96974/pexels-photo-96974.jpeg"
+  }
+]
