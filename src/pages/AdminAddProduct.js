@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useAppContext } from "../context/AppContext";
 import { useNavigate } from "react-router-dom";
+import { db } from "../firebase";
+import { collection, addDoc } from "firebase/firestore";
 
 export default function AdminAddProduct() {
   const { products, setProducts, categories } = useAppContext();
@@ -12,26 +14,31 @@ export default function AdminAddProduct() {
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
 
-  const handleAdd = (e) => {
+  const handleAdd = async (e) => {
     e.preventDefault();
     if (!name || !price || !category) return;
-    const id = Date.now();
-    setProducts([
-      ...products,
-      { id, name, description, price: Number(price), category, image },
-    ]);
-    setName("");
-    setDescription("");
-    setPrice("");
-    setCategory(categories[0]);
-    setImage("");
-    setSuccess(true);
-    setTimeout(() => {
-      setSuccess(false);
-      navigate("/");
-    }, 1000);
+    try {
+      await addDoc(collection(db, "products"), {
+        name,
+        description,
+        price: Number(price),
+        category,
+        image,
+      });
+      setName("");
+      setDescription("");
+      setPrice("");
+      setCategory(categories[0]);
+      setImage("");
+      setSuccess(true);
+      setTimeout(() => {
+        setSuccess(false);
+        navigate("/");
+      }, 1000);
+    } catch (error) {
+      alert("حدث خطأ أثناء إضافة المنتج. حاول مرة أخرى.");
+    }
   };
-
   return (
     <form className="max-w-md bg-white p-4 rounded shadow" onSubmit={handleAdd}>
       <div className="mb-4">
