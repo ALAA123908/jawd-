@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useAppContext } from "../context/AppContext";
 import { useNavigate } from "react-router-dom";
+import { db } from "../firebase";
+import { collection, addDoc } from "firebase/firestore";
 
 export default function CheckoutPage() {
   const { cart, setCart, orders, setOrders } = useAppContext();
@@ -10,24 +12,27 @@ export default function CheckoutPage() {
   const [submitted, setSubmitted] = useState(false);
   const navigate = useNavigate();
 
-  const handleOrder = (e) => {
+  const handleOrder = async (e) => {
     e.preventDefault();
     if (!name || !address || !phone) return;
     const order = {
-      id: Date.now(),
       name,
       address,
       phone,
       items: cart,
       total: cart.reduce((sum, item) => sum + item.price * item.qty, 0),
-      status: "جديد"
+      status: "جديد",
+      date: Date.now()
     };
-    setOrders([...orders, order]);
-    setCart([]);
-    setSubmitted(true);
-    setTimeout(() => navigate("/"), 2000);
+    try {
+      await addDoc(collection(db, "orders"), order);
+      setCart([]);
+      setSubmitted(true);
+      setTimeout(() => navigate("/"), 2000);
+    } catch (error) {
+      alert("حدث خطأ أثناء إرسال الطلب. حاول مرة أخرى.");
+    }
   };
-
   if (!cart || cart.length === 0) {
     return <div className="text-red-600 font-bold">السلة فارغة. لا يمكن إتمام الطلب.</div>;
   }
