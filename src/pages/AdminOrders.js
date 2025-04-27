@@ -1,5 +1,6 @@
-import React from "react";
-import { useAppContext } from "../context/AppContext";
+import React, { useEffect, useState } from "react";
+import { db } from "../firebase";
+import { collection, getDocs } from "firebase/firestore";
 
 const statuses = ["جديد", "جاري التوصيل", "مكتمل"];
 
@@ -11,9 +12,27 @@ function statusColor(status) {
 }
 
 export default function AdminOrders() {
-  const [successMsg, setSuccessMsg] = React.useState("");
-  const { orders, setOrders } = useAppContext();
-  const [replyInputs, setReplyInputs] = React.useState({});
+  const [successMsg, setSuccessMsg] = useState("");
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [replyInputs, setReplyInputs] = useState({});
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const ordersCollection = collection(db, "orders");
+        const ordersSnapshot = await getDocs(ordersCollection);
+        const ordersList = ordersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setOrders(ordersList);
+      } catch (err) {
+        setError("حدث خطأ أثناء جلب الطلبات.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchOrders();
+  }, []);
 
   const handleReplyChange = (id, value) => {
     setReplyInputs((prev) => ({ ...prev, [id]: value }));
@@ -45,6 +64,9 @@ export default function AdminOrders() {
       setOrders(orders.filter(order => order.id !== id));
     }
   };
+
+  if (loading) return <div>جاري تحميل الطلبات...</div>;
+  if (error) return <div className="text-red-600">{error}</div>;
 
   return (
     <div className="bg-white p-4 rounded shadow">
@@ -117,29 +139,29 @@ export default function AdminOrders() {
                   )}
                 </td>
                 <td>
-  <button
-    className="text-red-600 hover:underline text-xs mr-2"
-    onClick={() => handleDelete(order.id)}
-  >
-    حذف
-  </button>
-  <div className="mt-2">
-    <input
-      type="text"
-      placeholder="اكتب ردًا للزبون..."
-      className="border p-1 rounded text-xs w-32"
-      value={replyInputs[order.id] || ""}
-      onChange={e => handleReplyChange(order.id, e.target.value)}
-    />
-    <button
-      className="bg-blue-600 text-white rounded px-2 py-1 text-xs ml-1"
-      onClick={() => handleSendReply(order.id)}
-      disabled={!replyInputs[order.id] || !replyInputs[order.id].trim()}
-    >
-      إرسال
-    </button>
-  </div>
-</td>
+                  <button
+                    className="text-red-600 hover:underline text-xs mr-2"
+                    onClick={() => handleDelete(order.id)}
+                  >
+                    حذف
+                  </button>
+                  <div className="mt-2">
+                    <input
+                      type="text"
+                      placeholder="اكتب ردًا للزبون..."
+                      className="border p-1 rounded text-xs w-32"
+                      value={replyInputs[order.id] || ""}
+                      onChange={e => handleReplyChange(order.id, e.target.value)}
+                    />
+                    <button
+                      className="bg-blue-600 text-white rounded px-2 py-1 text-xs ml-1"
+                      onClick={() => handleSendReply(order.id)}
+                      disabled={!replyInputs[order.id] || !replyInputs[order.id].trim()}
+                    >
+                      إرسال
+                    </button>
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>
